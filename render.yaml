@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: pawfect-ml
+    runtime: python
+    rootDir: ml
+    buildCommand: pip install -r requirements.txt
+    startCommand: sh start.sh
+
+  - type: web
+    name: pawfect-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ML_API_URL
+        fromService:
+          type: web
+          name: pawfect-ml
+          property: url
+
+  - type: web
+    name: pawfect-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: pawfect-api
+          property: url
