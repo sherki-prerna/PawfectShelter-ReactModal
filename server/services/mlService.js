@@ -1,8 +1,23 @@
 const axios = require("axios");
 
-const ML_API_URL = (process.env.ML_API_URL || "http://127.0.0.1:8000").replace(
-  /\/$/,
-  "",
+const normalizeBaseUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const trimmedValue = value.replace(/\/$/, "");
+  if (
+    trimmedValue.startsWith("http://") ||
+    trimmedValue.startsWith("https://")
+  ) {
+    return trimmedValue;
+  }
+
+  return `https://${trimmedValue}`;
+};
+
+const ML_API_URL = normalizeBaseUrl(
+  process.env.ML_API_URL || "http://127.0.0.1:8000",
 );
 
 const getBatchScores = async (featureList) => {

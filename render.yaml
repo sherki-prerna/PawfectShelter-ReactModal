@@ -17,7 +17,7 @@ services:
         fromService:
           type: web
           name: pawfect-ml
-          property: url
+          property: hostport
 
   - type: web
     name: pawfect-frontend
@@ -29,4 +29,4 @@ services:
         fromService:
           type: web
           name: pawfect-api
-          property: url
+          property: hostport

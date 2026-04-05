@@ -1,4 +1,17 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const normalizeBaseUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const trimmedValue = value.replace(/\/$/, "");
+  if (trimmedValue.startsWith("http://") || trimmedValue.startsWith("https://")) {
+    return trimmedValue;
+  }
+
+  return `https://${trimmedValue}`;
+};
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_URL || "");
 
 export const getRecommendations = async (userData) => {
   try {
