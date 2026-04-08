@@ -8,8 +8,9 @@ const energyMap = {
 };
 
 const sizeMap = {
-  Cat: 0,
-  Dog: 1,
+  small: 0,
+  medium: 1,
+  large: 2,
 };
 
 const temperamentMap = {
@@ -18,6 +19,37 @@ const temperamentMap = {
   balanced: 0,
   active: 1,
   "experienced-only": 1,
+};
+
+const experienceLevelMap = {
+  beginner: 0,
+  any: 0,
+  some: 1,
+  experienced: 1,
+};
+
+const getPreferenceScore = (user, pet) => {
+  const userLifestyle = user.lifestyle;
+  const petEnergy = energyMap[pet.energy] ?? 1;
+  const energyDiff = Math.abs(userLifestyle - petEnergy);
+  const lifestyleScore = [1, 0.65, 0.25][energyDiff] ?? 0.25;
+
+  let homeScore = 0.8;
+  if (user.home_type === 0) {
+    homeScore = pet.size === "small" ? 1 : pet.size === "medium" ? 0.7 : 0.35;
+  } else {
+    homeScore = pet.size === "large" ? 1 : pet.size === "medium" ? 0.85 : 0.75;
+  }
+
+  const petExperience = experienceLevelMap[pet.experience] ?? 0;
+  let experienceScore = 1;
+  if (user.experience === 0 && petExperience === 1) {
+    experienceScore = 0.35;
+  } else if (user.experience === 1 && petExperience === 0) {
+    experienceScore = 0.85;
+  }
+
+  return lifestyleScore * 0.45 + homeScore * 0.25 + experienceScore * 0.3;
 };
 
 const recommendPets = async (req, res) => {
@@ -30,7 +62,7 @@ const recommendPets = async (req, res) => {
       ...pet,
       features: [
         energyMap[pet.energy] ?? 1,
-        sizeMap[pet.type] ?? 1,
+        sizeMap[pet.size] ?? 1,
         temperamentMap[pet.category] ?? 0,
       ],
     }));
@@ -51,10 +83,14 @@ const recommendPets = async (req, res) => {
     }
 
     // Attach scores
-    const results = petsWithFeatures.map((pet, index) => ({
-      ...pet,
-      score: scores[index],
-    }));
+    const results = petsWithFeatures.map((pet, index) => {
+      const { features, ...petData } = pet;
+
+      return {
+        ...petData,
+        score: scores[index] * 0.65 + getPreferenceScore(user, pet) * 0.35,
+      };
+    });
 
     // Sort & take top 5
     results.sort((a, b) => b.score - a.score);

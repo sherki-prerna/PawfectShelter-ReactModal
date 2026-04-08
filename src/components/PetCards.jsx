@@ -72,10 +72,14 @@ const PetCards = ({ pets }) => {
       {pets.map((pet, index) => (
         <div key={pet.id} style={styles.card}>
           <h3>{pet.name}</h3>
+          <p style={styles.meta}>
+            {pet.type} • {pet.size} • {pet.energy} energy
+          </p>
 
-          <p>Match: {(pet.score * 100).toFixed(1)}%</p>
+          <p>Match: {(pet.score * 100).toFixed(0)}%</p>
 
           <p>Rank #{index + 1}</p>
+          <p style={styles.reason}>{pet.reason}</p>
         </div>
       ))}
     </div>
@@ -95,6 +99,14 @@ const styles = {
     borderRadius: "12px",
     color: "white",
     width: "200px",
+  },
+  meta: {
+    color: "#d0d0d0",
+    fontSize: "14px",
+  },
+  reason: {
+    fontSize: "14px",
+    lineHeight: 1.5,
   },
 };
 
